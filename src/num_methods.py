@@ -116,6 +116,7 @@ class Solver2():
     tl = [self._t_limits[0]]
     T = T0
     
+    # TODO: возможно лучше хранить в виде [[x1, x2, ...], [y1, y2, ...]]
     # список переменных в виде (x, y)
     array: list[tuple] = [self._init_val]
 
