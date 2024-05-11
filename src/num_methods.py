@@ -26,8 +26,8 @@ class Solver2():
       self._t_limits = new_limits
     
   """Явный метод Эйлера 1-го порядка"""
-  def explicit_method(self, T, xvn, yvn):
-      xn1 = T*self._fx(xvn, yvn, a) + xvn
+  def explicit1_method(self, T, xvn, yvn):
+      xn1 = T*self._fx(xvn, yvn, *self._params) + xvn
       yn1 = T*self._fy(xvn, yvn, *self._params) + yvn
       return (xn1, yn1)
   
@@ -88,7 +88,7 @@ class Solver2():
       return (xn, yn)
   
   # новый шаг
-  def get_p(array):
+  def get_p(self, array):
       s = sum([i ** 2 for i in array])
       return math.sqrt(s)
 
@@ -109,7 +109,10 @@ class Solver2():
   T0 - максимальный шаг интегрирования, если динам., иначе просто шаг
   dynamic_step - использовать ли динамический шаг
   """
-  def do_method(self, method, T0, dynamic_step: bool=True):
+  def do_method(self, method, T0, dynamic_step: bool=True) -> tuple[list[float],
+                                                                    list[tuple[float, float]],
+                                                                    list[tuple[float, float]],
+                                                                    str]:
     tl = [self._t_limits[0]]
     T = T0
     
@@ -120,7 +123,7 @@ class Solver2():
     array_dif = [(self._fx(array[-1][0], array[-1][1], *self._params),
                   self._fy(array[-1][0], array[-1][1], *self._params))]
     while tl[-1] <= self._t_limits[1]:
-        array.append(method(T, array[-1][0], array[-1][1], *self._params))
+        array.append(method(T, array[-1][0], array[-1][1]))
         array_dif.append((self._fx(array[-1][0], array[-1][1], *self._params),
                 self._fy(array[-1][0], array[-1][1], *self._params)))
         if dynamic_step:
@@ -128,4 +131,4 @@ class Solver2():
                            self._t_limits[1] - self._t_limits[0])
         array_T.append(T)
         tl.append(tl[-1] + T)
-    return (tl, array, array_dif)
+    return (tl, array, array_dif, method.__name__)
