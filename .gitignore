@@ -3,3 +3,4 @@ newenv/
 .venv/
 .idea/
 venv/
+src/__pycache__/
