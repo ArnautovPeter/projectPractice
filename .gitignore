@@ -4,3 +4,4 @@ newenv/
 .idea/
 venv/
 src/__pycache__/
+default.latex
