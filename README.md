@@ -38,7 +38,7 @@ y_{i-1}) \quad (1 \leqslant i \leqslant n)$$
 
 Получим системы:
 
-$$\mathrm
+$$ \mathrm
     x_{i} = \begin{cases} x_{0}&\text{, при i = 0}\\ 
     x(x_{i-1},y_{i-1})*\tau_{i}+x_{i-1}&\text{, иначе} \end{cases}
     $$ и $$y_{i} = \begin{cases} y_{0}&\text{, при i = 0}\\ 
@@ -47,7 +47,7 @@ $$
 
 Применение его к данной задаче.
 
-$$\mathrm
+$$ \mathrm
     x_{i} = \begin{cases} 2 &\text{, при i = 0}\\ 
     (-a(\frac{x_{i-1}^3}{3} - x_{i-1}) + ay_{i-1})*\tau_{i}+x_{i-1}&\text{, иначе} \end{cases}
     $$ и $$y_{i} = \begin{cases} 0 &\text{, при i = 0}\\ 
