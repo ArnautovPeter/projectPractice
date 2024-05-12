@@ -37,8 +37,8 @@ class Solver2():
         a = [[1/2],
              [0, 1/2],
              [0, 0, 1]]
-        c = [1/6, 2/6, 2/6, 1/6]
-        return self._runge_kutta_exp(T, xvn, yvn, a, c)
+        b = [1/6, 2/6, 2/6, 1/6]
+        return self._runge_kutta_exp(T, xvn, yvn, a, b)
   
     """Явный метод Рунге-Кутты 5-го порядка"""
     def explicit5_method(self, T, xvn, yvn):
@@ -47,10 +47,10 @@ class Solver2():
              [1932/2197, -7200/2197, 7296/2197],
              [439/216, -8, 3680/513, -845/4104],
              [-8/27, 2, -3544/2565, 1859/4104, -11/40]]
-        c = [16/135, 0, 6656/12825, 28561/56430, -9/50, 2/55]
-        return self._runge_kutta_exp(T, xvn, yvn, a, c)
+        b = [16/135, 0, 6656/12825, 28561/56430, -9/50, 2/55]
+        return self._runge_kutta_exp(T, xvn, yvn, a, b)
     
-    def _runge_kutta_exp(self, T, xvn, yvn, a, c):
+    def _runge_kutta_exp(self, T, xvn, yvn, a, b):
         kx = [T * self._fx(xvn, yvn, *self._params)]
         ky = [T * self._fy(xvn, yvn, *self._params)]
 
@@ -61,8 +61,8 @@ class Solver2():
             kx.append(T * self._fx(*to_pass))
             ky.append(T * self._fy(*to_pass))
         
-        xn = xvn + sum([c[i] * kx[i] for i in range(len(kx))])
-        yn = yvn + sum([c[i] * ky[i] for i in range(len(ky))])
+        xn = xvn + sum([b[i] * kx[i] for i in range(len(kx))])
+        yn = yvn + sum([b[i] * ky[i] for i in range(len(ky))])
 
         return (xn, yn)
 
