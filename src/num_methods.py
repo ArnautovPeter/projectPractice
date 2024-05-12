@@ -30,7 +30,7 @@ class Solver2():
 
     """Явный метод Эйлера 1-го порядка"""
     def explicit1_method(self, T, xvn, yvn):
-        return self._runge_kutta_exp(T, xvn, yvn, [], [1])
+        return self._runge_kutta_exp(T, xvn, yvn, [], [1], [0])
   
     """Явный метод Рунге-Кутты 4-го порядка"""
     def explicit4_method(self, T, xvn, yvn):
@@ -38,7 +38,8 @@ class Solver2():
              [0, 1/2],
              [0, 0, 1]]
         b = [1/6, 2/6, 2/6, 1/6]
-        return self._runge_kutta_exp(T, xvn, yvn, a, b)
+        c = []
+        return self._runge_kutta_exp(T, xvn, yvn, a, b, c)
   
     """Явный метод Рунге-Кутты 5-го порядка"""
     def explicit5_method(self, T, xvn, yvn):
@@ -48,14 +49,16 @@ class Solver2():
              [439/216, -8, 3680/513, -845/4104],
              [-8/27, 2, -3544/2565, 1859/4104, -11/40]]
         b = [16/135, 0, 6656/12825, 28561/56430, -9/50, 2/55]
+        c = []
         return self._runge_kutta_exp(T, xvn, yvn, a, b)
     
-    def _runge_kutta_exp(self, T, xvn, yvn, a, b):
-        kx = [T * self._fx(xvn, yvn, *self._params)]
-        ky = [T * self._fy(xvn, yvn, *self._params)]
+    def _runge_kutta_exp(self, T, xvn, yvn, a, b, c):
+        kx = [T * self._fx(T, xvn, yvn, *self._params)]
+        ky = [T * self._fy(T, xvn, yvn, *self._params)]
 
         for i in range(len(a)):
-            to_pass = (xvn + sum([a[i][j] * kx[j] for j in range(i + 1)]),
+            to_pass = (T * c[i],
+                xvn + sum([a[i][j] * kx[j] for j in range(i + 1)]),
                        yvn + sum([a[i][j] * ky[j] for j in range(i + 1)]),
                        *self._params)
             kx.append(T * self._fx(*to_pass))
