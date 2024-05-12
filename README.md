@@ -9,14 +9,13 @@
 <a id="1"></a>
 
 ## Постановка задачи
-
+__Дано__:
 $$x' = -a(\frac{x^3}{3} - x) + ay$$
-
 $$y' = -x - by + c$$
-
 $$x(0) = 2,\quad y(0) = 0$$
+Здесь 1 $\leq$ _a_ $\leq$ $10^3$, 0 < _c_ < 1.  
 
-Здесь 1 $\leq$ _a_ $\leq$ $10^3$, 0 < _c_ < 1.
+__Задача__:  
 Провести исследование поведения решений в зависимости от значений «большого» параметра _a_.
 
 <a id="2"></a>
@@ -30,36 +29,20 @@ $$x(0) = 2,\quad y(0) = 0$$
 t_{1}, \ldots, t_{\mathrm{n}}$, где $t_{1}=T_{0}$ и $t_{n}=T_{\mathrm{fin}}$. 
 $\mathrm \tau_{i} = t_{i} - t_{i-1}$
 Для каждой $i$-ой точки найдем ($x_{\mathrm{i}}$, $y_{\mathrm{i}}$) ($\mathrm 0 
-\leqslant i \leqslant n$). Имеем 
-
-$$ \frac{x_{i} - x_{i-1}}{\tau_{i}}=x(x_{i-1},
+\leqslant i \leqslant n$). Имеем $$ \frac{x_{i} - x_{i-1}}{\tau_{i}}=x(x_{i-1},
 y_{i-1}) \quad \text{и} \quad \frac{y_{i} - y_{i-1}}{\tau_{i}}=y(x_{i-1},
-y_{i-1}) \quad (1 \leqslant i \leqslant n)$$
-
-Получим системы:
-
-$$ \mathrm
+y_{i-1}) \quad (1 \leqslant i \leqslant n)$$ Получим системы:
+$$\mathrm
     x_{i} = \begin{cases} x_{0}&\text{, при i = 0}\\ 
-    x(x_{i-1},y_{i-1})*\tau_{i}+x_{i-1}&\text{, иначе} \end{cases}
-$$ 
-
-и
-
-$$ y_{i} = \begin{cases} y_{0}&\text{, при i = 0}\\ 
-    y(x_{i-1},y_{i-1})*\tau_{i}+y_{i-1}&\text{, иначе} \end{cases}
+    x(x_{i-1},y_{i-1})\tau_{i}+x_{i-1}&\text{, иначе} \end{cases}
+    $$ и $$y_{i} = \begin{cases} y_{0}&\text{, при i = 0}\\ 
+    y(x_{i-1},y_{i-1})\tau_{i}+y_{i-1}&\text{, иначе} \end{cases}
 $$
-
 Применение его к данной задаче.
-
-$$ \mathrm
+$$\mathrm
     x_{i} = \begin{cases} 2 &\text{, при i = 0}\\ 
-    (-a(\frac{x_{i-1}^3}{3} - x_{i-1}) + ay_{i-1})*\tau_{i}+x_{i-1}&\text{, иначе} \end{cases}
-$$ 
-
-и 
-
-$$ y_{i} = \begin{cases} 0 &\text{, при i = 0}\\ 
-    (-x_{i-1} - by_{i-1} + c)*\tau_{i}+y_{i-1}&\text{, иначе} \end{cases}
+    (-a(\frac{x_{i-1}^3}{3} - x_{i-1}) + ay_{i-1})\tau_{i}+x_{i-1}&\text{, иначе} \end{cases}
+    $$ и $$y_{i} = \begin{cases} 0 &\text{, при i = 0}\\ 
+    (-x_{i-1} - by_{i-1} + c)\tau_{i}+y_{i-1}&\text{, иначе} \end{cases}
 $$
-
 По этим значениям и будем строить график.
