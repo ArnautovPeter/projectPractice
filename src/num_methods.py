@@ -29,36 +29,36 @@ class Solver2():
     # ЯВНЫЕ МЕТОДЫ
 
     """Явный метод Эйлера 1-го порядка"""
-    def explicit1_method(self, T, xvn, yvn):
-        return self._runge_kutta_exp(T, xvn, yvn, [], [1], [0])
+    def explicit1_method(self, T, xvn, yvn, t):
+        return self._runge_kutta_exp(T, xvn, yvn, [], [1], [], t)
   
     """Явный метод Рунге-Кутты 4-го порядка"""
-    def explicit4_method(self, T, xvn, yvn):
+    def explicit4_method(self, T, xvn, yvn, t):
         a = [[1/2],
              [0, 1/2],
              [0, 0, 1]]
         b = [1/6, 2/6, 2/6, 1/6]
-        c = []
-        return self._runge_kutta_exp(T, xvn, yvn, a, b, c)
+        c = [1/2, 1/2, 1]
+        return self._runge_kutta_exp(T, xvn, yvn, a, b, c, t)
   
     """Явный метод Рунге-Кутты 5-го порядка"""
-    def explicit5_method(self, T, xvn, yvn):
+    def explicit5_method(self, T, xvn, yvn, t):
         a = [[1/4],
              [3/32, 9/32],
              [1932/2197, -7200/2197, 7296/2197],
              [439/216, -8, 3680/513, -845/4104],
              [-8/27, 2, -3544/2565, 1859/4104, -11/40]]
         b = [16/135, 0, 6656/12825, 28561/56430, -9/50, 2/55]
-        c = []
-        return self._runge_kutta_exp(T, xvn, yvn, a, b)
+        c = [1/4, 3/8, 12/13, 1, 1/2]
+        return self._runge_kutta_exp(T, xvn, yvn, a, b, c, t)
     
-    def _runge_kutta_exp(self, T, xvn, yvn, a, b, c):
-        kx = [T * self._fx(T, xvn, yvn, *self._params)]
-        ky = [T * self._fy(T, xvn, yvn, *self._params)]
+    def _runge_kutta_exp(self, T, xvn, yvn, a, b, c, t):
+        kx = [T * self._fx(t, xvn, yvn, *self._params)]
+        ky = [T * self._fy(t, xvn, yvn, *self._params)]
 
         for i in range(len(a)):
-            to_pass = (T * c[i],
-                xvn + sum([a[i][j] * kx[j] for j in range(i + 1)]),
+            to_pass = (t + T * c[i],
+                        xvn + sum([a[i][j] * kx[j] for j in range(i + 1)]),
                        yvn + sum([a[i][j] * ky[j] for j in range(i + 1)]),
                        *self._params)
             kx.append(T * self._fx(*to_pass))
@@ -102,14 +102,13 @@ class Solver2():
 
         # список переменных в виде (x, y)
         array: list[tuple] = [self._init_val]
-
         array_T = [T]
-        array_dif = [(self._fx(array[-1][0], array[-1][1], *self._params),
-                        self._fy(array[-1][0], array[-1][1], *self._params))]
+        array_dif = [(self._fx(tl[-1], array[-1][0], array[-1][1], *self._params),
+                        self._fy(tl[-1], array[-1][0], array[-1][1], *self._params))]
         while tl[-1] <= self._t_limits[1]:
-            array.append(method(T, array[-1][0], array[-1][1]))
-            array_dif.append((self._fx(array[-1][0], array[-1][1], *self._params),
-                    self._fy(array[-1][0], array[-1][1], *self._params)))
+            array.append(method(T, array[-1][0], array[-1][1], tl[-1]))
+            # array_dif.append((self._fx(tl[-1], array[-1][0], array[-1][1], *self._params),
+            #         self._fy(tl[-1], array[-1][0], array[-1][1], *self._params)))
             if dynamic_step:
                 T = self.new_T(array_T[-1], T0, array[-1], array[-2],
                                 self._t_limits[1] - self._t_limits[0])
