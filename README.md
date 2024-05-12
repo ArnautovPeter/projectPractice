@@ -41,7 +41,11 @@ y_{i-1}) \quad (1 \leqslant i \leqslant n)$$
 $$ \mathrm
     x_{i} = \begin{cases} x_{0}&\text{, при i = 0}\\ 
     x(x_{i-1},y_{i-1})*\tau_{i}+x_{i-1}&\text{, иначе} \end{cases}
-    $$ и $$y_{i} = \begin{cases} y_{0}&\text{, при i = 0}\\ 
+$$ 
+
+и
+
+$$ y_{i} = \begin{cases} y_{0}&\text{, при i = 0}\\ 
     y(x_{i-1},y_{i-1})*\tau_{i}+y_{i-1}&\text{, иначе} \end{cases}
 $$
 
@@ -50,7 +54,11 @@ $$
 $$ \mathrm
     x_{i} = \begin{cases} 2 &\text{, при i = 0}\\ 
     (-a(\frac{x_{i-1}^3}{3} - x_{i-1}) + ay_{i-1})*\tau_{i}+x_{i-1}&\text{, иначе} \end{cases}
-    $$ и $$y_{i} = \begin{cases} 0 &\text{, при i = 0}\\ 
+$$ 
+
+и 
+
+$$ y_{i} = \begin{cases} 0 &\text{, при i = 0}\\ 
     (-x_{i-1} - by_{i-1} + c)*\tau_{i}+y_{i-1}&\text{, иначе} \end{cases}
 $$
 
