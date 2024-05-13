@@ -454,7 +454,7 @@ $$\begin{split} & x = \cos (t) \\& y = \sin (t) \end{split}$$
 
 В координатах $y(t), t$ ситуация похожая, только не наблюдается рост амплитуды колебаний.
 
-![](img/YImplPlotDiffA.png){ width=300px }
+![](img/ynabor.png){ width=300px }
 
 В координатах $x^{\prime}(t), x(t)$
 
@@ -472,7 +472,7 @@ $$\begin{split} & x = \cos (t) \\& y = \sin (t) \end{split}$$
 
 Видно, что при другом наборе параметров, изменение $a$ влияет на систему сильнее, уже при $a = 3$ функция становится периодической.
 
-![](img/ynabor.png){ width=300px }
+![](img/YImplPlotDiffA.png){ width=300px }
 
 В координатах $x^{\prime}(t), x(t)$
 
