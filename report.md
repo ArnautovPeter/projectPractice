@@ -456,7 +456,9 @@ $$\begin{split} & x = \cos (t) \\& y = \sin (t) \end{split}$$
 
 ![](img/krasota1Xfromx.png){ width=300px }
 
-В координатах $x(t), \, y(t)$
+Система хаотическая при малых $a$ и периодическая при больших.
+
+В координатах $y^{\prime}(t), \, y(t)$ то же самое.
 
 ![](img/krasota1.png){ width=500px }
 
