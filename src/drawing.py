@@ -27,7 +27,7 @@ def draw_on_plot(Ox: list[list], Oy: list[list], names: list[str],
             px1.scatter(x, y, label=name)
 
 "Рисование графиков"
-def draw_on_plot(Ox: list[list], Oy: list[list], names: list[str],
+def draw_on_plot_label(Ox: list[list], Oy: list[list], names: list[str],
                  px1, xlable, ylable, scatter: bool = False):
     if not scatter:
         for x, y, name in zip(Ox, Oy, names):

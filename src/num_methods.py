@@ -1,5 +1,5 @@
 import math
-from scipy import optimize
+from typing import Callable
 
 
 class Solver2():
@@ -29,11 +29,11 @@ class Solver2():
     # ЯВНЫЕ МЕТОДЫ
 
     """Явный метод Эйлера 1-го порядка"""
-    def explicit1_method(self, T, xvn, yvn, t):
+    def explicit1(self, T, xvn, yvn, t, _):
         return self._runge_kutta_exp(T, xvn, yvn, [], [1], [], t)
   
     """Явный метод Рунге-Кутты 4-го порядка"""
-    def explicit4_method(self, T, xvn, yvn, t):
+    def explicit4(self, T, xvn, yvn, t, _):
         a = [[1/2],
              [0, 1/2],
              [0, 0, 1]]
@@ -42,7 +42,7 @@ class Solver2():
         return self._runge_kutta_exp(T, xvn, yvn, a, b, c, t)
   
     """Явный метод Рунге-Кутты 5-го порядка"""
-    def explicit5_method(self, T, xvn, yvn, t):
+    def explicit5(self, T, xvn, yvn, t, _):
         a = [[1/4],
              [3/32, 9/32],
              [1932/2197, -7200/2197, 7296/2197],
@@ -52,7 +52,11 @@ class Solver2():
         c = [1/4, 3/8, 12/13, 1, 1/2]
         return self._runge_kutta_exp(T, xvn, yvn, a, b, c, t)
     
-    def _runge_kutta_exp(self, T, xvn, yvn, a, b, c, t):
+    def _runge_kutta_exp(self, T: float, xvn: float, yvn: float,
+                         a: list[list[float]],
+                         b: list[list[float]],
+                         c: list[list[float]],
+                         t: float):
         kx = [T * self._fx(t, xvn, yvn, *self._params)]
         ky = [T * self._fy(t, xvn, yvn, *self._params)]
 
@@ -68,6 +72,13 @@ class Solver2():
         yn = yvn + sum([b[i] * ky[i] for i in range(len(ky))])
 
         return (xn, yn)
+    
+    # НЯВНЫЕ МЕТОДЫ
+    
+    def implicit1(self, T, xvn, yvn, t):
+        def fk(x):
+            return [T * fx(t, x[0], x[1], *self._params) - x[0] + xvn,
+                    T * fy(t, x[0], x[1], *self._params) - x[1] + yvn]
 
     # ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ
 
@@ -92,11 +103,16 @@ class Solver2():
     method - метод, которым надо решить
     T0 - максимальный шаг интегрирования, если динам., иначе просто шаг
     dynamic_step - использовать ли динамический шаг
+    
+    -----
+    
+    return ([независимая переменная], [вычисленные значения для ф-ий],
+            [вычисленные для дифф], [названия методов])
     """
-    def do_method(self, method, T0, dynamic_step: bool=True) -> tuple[list[float],
-                                                                    list[tuple[float, float]],
-                                                                    list[tuple[float, float]],
-                                                                    str]:
+    def do_method(self, method, T0, dynamic_step: bool=True, jac_impl: list[callable]) -> tuple[list[float],
+                                                                                                list[tuple[float, float]],
+                                                                                                list[tuple[float, float]],
+                                                                                                str]:
         tl = [self._t_limits[0]]
         T = T0
 
@@ -106,7 +122,7 @@ class Solver2():
         array_dif = [(self._fx(tl[-1], array[-1][0], array[-1][1], *self._params),
                         self._fy(tl[-1], array[-1][0], array[-1][1], *self._params))]
         while tl[-1] <= self._t_limits[1]:
-            array.append(method(T, array[-1][0], array[-1][1], tl[-1]))
+            array.append(method(T, array[-1][0], array[-1][1], tl[-1], jac_impl))
             # array_dif.append((self._fx(tl[-1], array[-1][0], array[-1][1], *self._params),
             #         self._fy(tl[-1], array[-1][0], array[-1][1], *self._params)))
             if dynamic_step:
