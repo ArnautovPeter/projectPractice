@@ -44,17 +44,17 @@ class Solver2():
 
     def explicit1(self, T, xvn, yvn, t, _):
         """Явный метод Эйлера 1-го порядка"""
-        return self._runge_kutta_exp(T, xvn, yvn, Solver2.expl1_table, t)
+        return self._runge_kutta_exp(T, xvn, yvn, t, Solver2.expl1_table)
   
     def explicit4(self, T, xvn, yvn, t, _):
         """Явный метод Рунге-Кутты 4-го порядка"""
-        return self._runge_kutta_exp(T, xvn, yvn, Solver2.expl4_table, t)
+        return self._runge_kutta_exp(T, xvn, yvn, t, Solver2.expl4_table)
   
     def explicit5(self, T, xvn, yvn, t, _):
         """Явный метод Рунге-Кутты 5-го порядка"""
-        return self._runge_kutta_exp(T, xvn, yvn, Solver2.expl5_table, t)
+        return self._runge_kutta_exp(T, xvn, yvn, t, Solver2.expl5_table)
     
-    def _runge_kutta_exp(self, T: float, xvn: float, yvn: float, table: ButcherTable, t: float):
+    def _runge_kutta_exp(self, T: float, xvn: float, yvn: float, t: float, table: ButcherTable):
         kx = [T * self._fx(t, xvn, yvn, *self._params)]
         ky = [T * self._fy(t, xvn, yvn, *self._params)]
 
@@ -71,7 +71,7 @@ class Solver2():
 
         return (xn, yn)
     
-    # НЯВНЫЕ МЕТОДЫ
+    # НЕЯВНЫЕ МЕТОДЫ
 
     def _guess(self, T, xvn, yvn, t):
         # TODO: maybe xvn is better, needs to be checked
@@ -84,7 +84,9 @@ class Solver2():
                     T * self._fy(t, x[0], x[1], *self._params) - x[1] + yvn]
         return f
     
-    def implicit1(self, T, xvn, yvn, t, jac):
+    def implicit1(self, T, xvn, yvn, t, jac)
+    
+    def _runge_kutta_implicit(self, T, xvn, yvn, t, table, jac):
         # print(jac(T, xvn, yvn, t, *self._params))
         sol = optimize.root(fun=self._sol_func(T, xvn, yvn, t),
                             x0=self._guess(T, xvn, yvn, t),
