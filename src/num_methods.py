@@ -88,7 +88,7 @@ class Solver2():
         return f
     
     def implicit1(self, T, xvn, yvn, t, jac):
-        return self._runge_kutta_imp(self, T, xvn, yvn, t, , jac)
+        return self._runge_kutta_imp(self, T, xvn, yvn, t, jac)
     
     def _runge_kutta_imp(self, T, xvn, yvn, t, table, jac):
         # print(jac(T, xvn, yvn, t, *self._params))
