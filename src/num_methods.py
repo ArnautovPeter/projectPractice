@@ -1,9 +1,23 @@
 import math
-
 from scipy import optimize
+from butcher import ButcherTable
 
 
 class Solver2():
+    expl1_table = ButcherTable([], [1], [])
+    expl4_table = ButcherTable([[1/2],
+                                [0, 1/2],
+                                [0, 0, 1]],
+                                [1/6, 2/6, 2/6, 1/6],
+                                [1/2, 1/2, 1])
+    expl5_table = ButcherTable([[1/4],
+                                [3/32, 9/32],
+                                [1932/2197, -7200/2197, 7296/2197],
+                                [439/216, -8, 3680/513, -845/4104],
+                                [-8/27, 2, -3544/2565, 1859/4104, -11/40]],
+                                [16/135, 0, 6656/12825, 28561/56430, -9/50, 2/55],
+                                [1/4, 3/8, 12/13, 1, 1/2])
+    
     def __init__(self, func: tuple[callable, callable],
                 params: list[float],
                 init_val: tuple[float, float],
@@ -30,64 +44,52 @@ class Solver2():
 
     def explicit1(self, T, xvn, yvn, t, _):
         """Явный метод Эйлера 1-го порядка"""
-        return self._runge_kutta_exp(T, xvn, yvn, [], [1], [], t)
+        return self._runge_kutta_exp(T, xvn, yvn, Solver2.expl1_table, t)
   
     def explicit4(self, T, xvn, yvn, t, _):
         """Явный метод Рунге-Кутты 4-го порядка"""
-        a = [[1/2],
-             [0, 1/2],
-             [0, 0, 1]]
-        b = [1/6, 2/6, 2/6, 1/6]
-        c = [1/2, 1/2, 1]
-        return self._runge_kutta_exp(T, xvn, yvn, a, b, c, t)
+        return self._runge_kutta_exp(T, xvn, yvn, Solver2.expl4_table, t)
   
     def explicit5(self, T, xvn, yvn, t, _):
         """Явный метод Рунге-Кутты 5-го порядка"""
-        a = [[1/4],
-             [3/32, 9/32],
-             [1932/2197, -7200/2197, 7296/2197],
-             [439/216, -8, 3680/513, -845/4104],
-             [-8/27, 2, -3544/2565, 1859/4104, -11/40]]
-        b = [16/135, 0, 6656/12825, 28561/56430, -9/50, 2/55]
-        c = [1/4, 3/8, 12/13, 1, 1/2]
-        return self._runge_kutta_exp(T, xvn, yvn, a, b, c, t)
+        return self._runge_kutta_exp(T, xvn, yvn, Solver2.expl5_table, t)
     
-    def _runge_kutta_exp(self, T: float, xvn: float, yvn: float,
-                         a: list[list[float]],
-                         b: list[list[float]],
-                         c: list[list[float]],
-                         t: float):
+    def _runge_kutta_exp(self, T: float, xvn: float, yvn: float, table: ButcherTable, t: float):
         kx = [T * self._fx(t, xvn, yvn, *self._params)]
         ky = [T * self._fy(t, xvn, yvn, *self._params)]
 
-        for i in range(len(a)):
-            to_pass = (t + T * c[i],
-                        xvn + sum([a[i][j] * kx[j] for j in range(i + 1)]),
-                       yvn + sum([a[i][j] * ky[j] for j in range(i + 1)]),
+        for i in range(table.s):
+            to_pass = (t + T * table.c[i],
+                       xvn + sum([table.a[i][j] * kx[j] for j in range(i + 1)]),
+                       yvn + sum([table.a[i][j] * ky[j] for j in range(i + 1)]),
                        *self._params)
             kx.append(T * self._fx(*to_pass))
             ky.append(T * self._fy(*to_pass))
         
-        xn = xvn + sum([b[i] * kx[i] for i in range(len(kx))])
-        yn = yvn + sum([b[i] * ky[i] for i in range(len(ky))])
+        xn = xvn + sum([table.b[i] * kx[i] for i in range(len(kx))])
+        yn = yvn + sum([table.b[i] * ky[i] for i in range(len(ky))])
 
         return (xn, yn)
     
     # НЯВНЫЕ МЕТОДЫ
 
     def _guess(self, T, xvn, yvn, t):
-        # TODO: maybe xvn is better or not, needs to be checked
+        # TODO: maybe xvn is better, needs to be checked
         return [xvn + T * self._fx(T, xvn, yvn, t),
                 yvn + T * self._fy(T, xvn, yvn, t)]
     
-    def implicit1(self, T, xvn, yvn, t, jac):
-        def fk(x):
+    def _sol_func(self, T, xvn, yvn, t):
+        def f(x):
             return [T * self._fx(t, x[0], x[1], *self._params) - x[0] + xvn,
                     T * self._fy(t, x[0], x[1], *self._params) - x[1] + yvn]
-        
+        return f
+    
+    def implicit1(self, T, xvn, yvn, t, jac):
         # print(jac(T, xvn, yvn, t, *self._params))
-        sol = optimize.root(fun=fk, x0=self._guess(T, xvn, yvn, t),
-                        jac=jac(T, xvn, yvn, t, *self._params), method='hybr')
+        sol = optimize.root(fun=self._sol_func(T, xvn, yvn, t),
+                            x0=self._guess(T, xvn, yvn, t),
+                            jac=jac(T, xvn, yvn, t, *self._params),
+                            method='hybr')
         return (sol.x[0], sol.x[1])
 
     # ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ

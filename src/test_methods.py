@@ -1,7 +1,11 @@
-class Test2:
+class Test2():
     def __init__(self, f):
-        fx, fy = f
+        fx, fy = f  # точное решение
+        pass
+
+    def _slope(self, results):
         pass
     
-    def test_(T_limits, results):
+    def test_(self, T_limits, results):
         pass
+    
