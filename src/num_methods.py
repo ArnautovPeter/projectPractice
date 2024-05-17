@@ -17,6 +17,9 @@ class Solver2():
                                 [-8/27, 2, -3544/2565, 1859/4104, -11/40]],
                                 [16/135, 0, 6656/12825, 28561/56430, -9/50, 2/55],
                                 [1/4, 3/8, 12/13, 1, 1/2])
+    impl1_table = ButcherTable([],
+                               [],
+                               [])
     
     def __init__(self, func: tuple[callable, callable],
                 params: list[float],
@@ -84,9 +87,10 @@ class Solver2():
                     T * self._fy(t, x[0], x[1], *self._params) - x[1] + yvn]
         return f
     
-    def implicit1(self, T, xvn, yvn, t, jac)
+    def implicit1(self, T, xvn, yvn, t, jac):
+        return self._runge_kutta_imp(self, T, xvn, yvn, t, , jac)
     
-    def _runge_kutta_implicit(self, T, xvn, yvn, t, table, jac):
+    def _runge_kutta_imp(self, T, xvn, yvn, t, table, jac):
         # print(jac(T, xvn, yvn, t, *self._params))
         sol = optimize.root(fun=self._sol_func(T, xvn, yvn, t),
                             x0=self._guess(T, xvn, yvn, t),
