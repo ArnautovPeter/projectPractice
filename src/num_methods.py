@@ -26,14 +26,30 @@ class Solver2():
                                 [1])
     
     def __init__(self, func: tuple[callable, callable],
+                jac: list[callable],
                 params: list[float],
                 init_val: tuple[float, float],
                 t_limits: tuple[float, float]) -> None:
+        """
+        func - дифференциальные уравнения\n
+        jac - список якобианов для систем уравнений, которая являются решением для неявных схем,
+        [1я неявная, 2я неявная] - все позиции до метода самого старшего порядка должны быть заполнены как минимум с помощью None - [none, jac2, none, jac4]
+        якобиан имеет вид jac(T, xvn, yvn, t, params)
+        и содержит внутри функцию, которую нужно передать optimize.root\n
+        params - параметры для дифференциальных уравнений\n
+        init_val - изначальные значения системы\n
+        t_limits - пределы интегрирования
+
+        --------
+
+        reutrn None
+        """
         # неизменные поля для Solver
         # у функций должно быть ОДИНАКОВОЕ кол-во параметров
         self._fx = func[0]
         self._fy = func[1]
         self._init_val = init_val
+        self._jac = jac
 
         # Поля, которые можно менять для изучения поведения
         self._t_limits = t_limits
@@ -49,15 +65,15 @@ class Solver2():
 
     # ЯВНЫЕ МЕТОДЫ
 
-    def explicit1(self, T, xvn, yvn, t, _):
+    def explicit1(self, T, xvn, yvn, t):
         """Явный метод Эйлера 1-го порядка"""
         return self._runge_kutta_exp(T, xvn, yvn, t, Solver2._expl1_table)
   
-    def explicit4(self, T, xvn, yvn, t, _):
+    def explicit4(self, T, xvn, yvn, t):
         """Явный метод Рунге-Кутты 4-го порядка"""
         return self._runge_kutta_exp(T, xvn, yvn, t, Solver2._expl4_table)
   
-    def explicit5(self, T, xvn, yvn, t, _):
+    def explicit5(self, T, xvn, yvn, t):
         """Явный метод Рунге-Кутты 5-го порядка"""
         return self._runge_kutta_exp(T, xvn, yvn, t, Solver2._expl5_table)
     
@@ -85,20 +101,23 @@ class Solver2():
         return [xvn + T * self._fx(T, xvn, yvn, t),
                 yvn + T * self._fy(T, xvn, yvn, t)]
     
-    def implicit1(self, T, xvn, yvn, t, jac):
+    def implicit1(self, T, xvn, yvn, t):
+        if self._jac[0] is None:
+            raise Exception("Нет якобиана для неявного метода порядка 1")
+
         def f(x):
             return [T * self._fx(t, x[0], x[1], *self._params) - x[0] + xvn,
                     T * self._fy(t, x[0], x[1], *self._params) - x[1] + yvn]
-        
-        print(jac(T, xvn, yvn, t, None, None, *self._params))
 
         sol = optimize.root(fun=f,
                             x0=self._guess(T, xvn, yvn, t),
-                            jac=jac(T, xvn, yvn, t, None, None, *self._params),
+                            jac=self._jac[0](T, xvn, yvn, t, None, None, *self._params),
                             method='hybr')
         return (sol.x[0], sol.x[1])
 
-    def implicit2(self, T, xvn, yvn, t, jac):
+    def implicit2(self, T, xvn, yvn, t):
+        if self._jac[1] is None:
+            raise Exception("Нет якобиана для неявного метода порядка 1")
         
         k1 = [T * self._fx(t, xvn, yvn, *self._params),
               T * self._fy(t, xvn, yvn, *self._params)]
@@ -111,7 +130,7 @@ class Solver2():
         
         sol = optimize.root(fun=f,
                             x0=self._guess(T, xvn, yvn, t),
-                            jac=jac(T, xvn, yvn, t, Solver2._impl2_table, k1, *self._params),
+                            jac=self._jac[1](T, xvn, yvn, t, Solver2._impl2_table, k1, *self._params),
                             method='hybr')
         xn2 = xvn + Solver2._impl2_table.b[0] * k1[0] +\
             Solver2._impl2_table.b[1] * sol.x[0]
@@ -145,21 +164,19 @@ class Solver2():
         new_T = T0 / (1 + math.sqrt(L) * XX ** (1/4))
         return new_T
 
-    def do_method(self, method, T0, jac_impl: callable=None, dynamic_step: bool=False) -> tuple[list[float],
-                                                                                                list[tuple[float, float]],
-                                                                                                list[tuple[float, float]],
-                                                                                                str]:
+    def do_method(self, method, T0, dynamic_step: bool=False) -> tuple[list[float],
+                                                                    list[tuple[float, float]],
+                                                                    list[tuple[float, float]],
+                                                                    str]:
         """
         Выполнение численного метода\n
         method - метод, которым надо решить\n
         T0 - максимальный шаг интегрирования, если динам., иначе просто шаг\n
-        якобиан системы уравнений, которая является решением для неявной схемы, передается в виде
-        jac(T, xvn, yvn, t, params) и содержит внутри функцию, которую нужно передать optimize.root\n
         dynamic_step - использовать ли динамический шаг
 
         -----
         
-        return ([независимая переменная], {вычисленные значения для ф-ий}, [названия методов])
+        return ([независимая переменная], [вычисленные значения для ф-ий - (x,y)], [названия методов])
         """
         
         tl = [self._t_limits[0]]
@@ -169,7 +186,7 @@ class Solver2():
         array: list[tuple] = [self._init_val]
         array_T = [T]
         while tl[-1] <= self._t_limits[1]:
-            array.append(method(T, array[-1][0], array[-1][1], tl[-1], jac_impl))
+            array.append(method(T, array[-1][0], array[-1][1], tl[-1]))
             if dynamic_step:
                 T = self.new_T(array_T[-1], T0, array[-1], array[-2],
                                 self._t_limits[1] - self._t_limits[0])
