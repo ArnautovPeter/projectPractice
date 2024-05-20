@@ -20,6 +20,10 @@ class Solver2():
     impl1_table = ButcherTable([],
                                [],
                                [])
+    impl2_table = ButcherTable([[0, 0],
+                                [1/2, 1/2]],
+                                [1/2],
+                                [1/2, 1/2])
     
     def __init__(self, func: tuple[callable, callable],
                 params: list[float],
@@ -81,22 +85,46 @@ class Solver2():
         return [xvn + T * self._fx(T, xvn, yvn, t),
                 yvn + T * self._fy(T, xvn, yvn, t)]
     
-    def _sol_func(self, T, xvn, yvn, t):
+    def implicit1(self, T, xvn, yvn, t, jac):
         def f(x):
             return [T * self._fx(t, x[0], x[1], *self._params) - x[0] + xvn,
                     T * self._fy(t, x[0], x[1], *self._params) - x[1] + yvn]
-        return f
-    
-    def implicit1(self, T, xvn, yvn, t, jac):
-        return self._runge_kutta_imp(self, T, xvn, yvn, t, jac)
-    
-    def _runge_kutta_imp(self, T, xvn, yvn, t, table, jac):
-        # print(jac(T, xvn, yvn, t, *self._params))
-        sol = optimize.root(fun=self._sol_func(T, xvn, yvn, t),
+
+        sol = optimize.root(fun=f,
                             x0=self._guess(T, xvn, yvn, t),
-                            jac=jac(T, xvn, yvn, t, *self._params),
+                            jac=jac(T, xvn, yvn, t, Solver2.impl1_table, *self._params),
                             method='hybr')
         return (sol.x[0], sol.x[1])
+
+    def implicit2(self, T, xvn, yvn, t, jac):
+        
+        
+        k1 = [T * self._fx(t, xvn, yvn, *self._params),
+              T * self._fy(t, xvn, yvn, *self._params)]
+        def f(x):
+            # x = k2
+            xn = xvn + Solver2.implicit2.a[1][0] * k1[0] + Solver2.implicit2.a[1][1] * x[0]
+            yn = yvn + Solver2.implicit2.a[1][0] * k1[1] + Solver2.implicit2.a[1][1] * x[1]
+            return [T * self._fx(t + Solver2.implicit2.c[0] * T, xn[0], yn[0], *self._params) - x[0],
+                    T * self._fy(t + Solver2.implicit2.c[0] * T, xn[1], yn[1], *self._params) - x[1]]
+        
+        sol = optimize.root(fun=f,
+                            x0=self._guess(T, xvn, yvn, t),
+                            jac=jac(T, xvn, yvn, t, Solver2.impl2_table, *self._params),
+                            method='hybr')
+        xn2 = xvn + Solver2.implicit2.b[0] * k1[0] +\
+            Solver2.implicit2.b[1] * sol.x[0]
+        yn2 = yvn + Solver2.implicit2.b[0] * k1[1] +\
+            Solver2.implicit2.b[1] * sol.x[1]
+        return (xn2, yn2)
+    
+    # def _runge_kutta_imp(self, T, xvn, yvn, t, table, jac):
+    #     # print(jac(T, xvn, yvn, t, *self._params))
+    #     sol = optimize.root(fun=self._sol_func(T, xvn, yvn, t),
+    #                         x0=self._guess(T, xvn, yvn, t),
+    #                         jac=jac(T, xvn, yvn, t, *self._params),
+    #                         method='hybr')
+    #     return (sol.x[0], sol.x[1])
 
     # ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ
 
@@ -159,6 +187,7 @@ class Solver2():
         return [i[1] for i in array[1]]
     
     def get_diffs(self):
-        array_dif = [(self._fx(tl[-1], array[-1][0], array[-1][1], *self._params),
-                        self._fy(tl[-1], array[-1][0], array[-1][1], *self._params))]
+        # array_dif = [(self._fx(tl[-1], array[-1][0], array[-1][1], *self._params),
+        #                 self._fy(tl[-1], array[-1][0], array[-1][1], *self._params))]
+        pass
     
