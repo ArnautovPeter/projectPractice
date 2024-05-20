@@ -98,8 +98,8 @@ class Solver2():
 
     def _guess(self, T, xvn, yvn, t):
         # TODO: maybe xvn is better, needs to be checked
-        return [xvn + T * self._fx(T, xvn, yvn, t),
-                yvn + T * self._fy(T, xvn, yvn, t)]
+        return [xvn + T * self._fx(t, xvn, yvn, *self._params),
+                yvn + T * self._fy(t, xvn, yvn, *self._params)]
     
     def implicit1(self, T, xvn, yvn, t):
         if self._jac[0] is None:
