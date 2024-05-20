@@ -4,26 +4,26 @@ from butcher import ButcherTable
 
 
 class Solver2():
-    expl1_table = ButcherTable([], [1], [])
-    expl4_table = ButcherTable([[1/2],
+    _expl1_table = ButcherTable([], [1], [])
+    _expl4_table = ButcherTable([[1/2],
                                 [0, 1/2],
                                 [0, 0, 1]],
                                 [1/6, 2/6, 2/6, 1/6],
                                 [1/2, 1/2, 1])
-    expl5_table = ButcherTable([[1/4],
+    _expl5_table = ButcherTable([[1/4],
                                 [3/32, 9/32],
                                 [1932/2197, -7200/2197, 7296/2197],
                                 [439/216, -8, 3680/513, -845/4104],
                                 [-8/27, 2, -3544/2565, 1859/4104, -11/40]],
                                 [16/135, 0, 6656/12825, 28561/56430, -9/50, 2/55],
                                 [1/4, 3/8, 12/13, 1, 1/2])
-    impl1_table = ButcherTable([],
+    _impl1_table = ButcherTable([],
                                [],
                                [])
-    impl2_table = ButcherTable([[0, 0],
+    _impl2_table = ButcherTable([[0, 0],
                                 [1/2, 1/2]],
-                                [1/2],
-                                [1/2, 1/2])
+                                [1/2, 1/2],
+                                [1])
     
     def __init__(self, func: tuple[callable, callable],
                 params: list[float],
@@ -51,15 +51,15 @@ class Solver2():
 
     def explicit1(self, T, xvn, yvn, t, _):
         """Явный метод Эйлера 1-го порядка"""
-        return self._runge_kutta_exp(T, xvn, yvn, t, Solver2.expl1_table)
+        return self._runge_kutta_exp(T, xvn, yvn, t, Solver2._expl1_table)
   
     def explicit4(self, T, xvn, yvn, t, _):
         """Явный метод Рунге-Кутты 4-го порядка"""
-        return self._runge_kutta_exp(T, xvn, yvn, t, Solver2.expl4_table)
+        return self._runge_kutta_exp(T, xvn, yvn, t, Solver2._expl4_table)
   
     def explicit5(self, T, xvn, yvn, t, _):
         """Явный метод Рунге-Кутты 5-го порядка"""
-        return self._runge_kutta_exp(T, xvn, yvn, t, Solver2.expl5_table)
+        return self._runge_kutta_exp(T, xvn, yvn, t, Solver2._expl5_table)
     
     def _runge_kutta_exp(self, T: float, xvn: float, yvn: float, t: float, table: ButcherTable):
         kx = [T * self._fx(t, xvn, yvn, *self._params)]
@@ -89,33 +89,34 @@ class Solver2():
         def f(x):
             return [T * self._fx(t, x[0], x[1], *self._params) - x[0] + xvn,
                     T * self._fy(t, x[0], x[1], *self._params) - x[1] + yvn]
+        
+        print(jac(T, xvn, yvn, t, None, None, *self._params))
 
         sol = optimize.root(fun=f,
                             x0=self._guess(T, xvn, yvn, t),
-                            jac=jac(T, xvn, yvn, t, Solver2.impl1_table, *self._params),
+                            jac=jac(T, xvn, yvn, t, None, None, *self._params),
                             method='hybr')
         return (sol.x[0], sol.x[1])
 
     def implicit2(self, T, xvn, yvn, t, jac):
         
-        
         k1 = [T * self._fx(t, xvn, yvn, *self._params),
               T * self._fy(t, xvn, yvn, *self._params)]
         def f(x):
             # x = k2
-            xn = xvn + Solver2.implicit2.a[1][0] * k1[0] + Solver2.implicit2.a[1][1] * x[0]
-            yn = yvn + Solver2.implicit2.a[1][0] * k1[1] + Solver2.implicit2.a[1][1] * x[1]
-            return [T * self._fx(t + Solver2.implicit2.c[0] * T, xn[0], yn[0], *self._params) - x[0],
-                    T * self._fy(t + Solver2.implicit2.c[0] * T, xn[1], yn[1], *self._params) - x[1]]
+            xn = xvn + Solver2._impl2_table.a[1][0] * k1[0] + Solver2._impl2_table.a[1][1] * x[0]
+            yn = yvn + Solver2._impl2_table.a[1][0] * k1[1] + Solver2._impl2_table.a[1][1] * x[1]
+            return [T * self._fx(t + Solver2._impl2_table.c[0] * T, xn, yn, *self._params) - x[0],
+                    T * self._fy(t + Solver2._impl2_table.c[0] * T, xn, yn, *self._params) - x[1]]
         
         sol = optimize.root(fun=f,
                             x0=self._guess(T, xvn, yvn, t),
-                            jac=jac(T, xvn, yvn, t, Solver2.impl2_table, *self._params),
+                            jac=jac(T, xvn, yvn, t, Solver2._impl2_table, k1, *self._params),
                             method='hybr')
-        xn2 = xvn + Solver2.implicit2.b[0] * k1[0] +\
-            Solver2.implicit2.b[1] * sol.x[0]
-        yn2 = yvn + Solver2.implicit2.b[0] * k1[1] +\
-            Solver2.implicit2.b[1] * sol.x[1]
+        xn2 = xvn + Solver2._impl2_table.b[0] * k1[0] +\
+            Solver2._impl2_table.b[1] * sol.x[0]
+        yn2 = yvn + Solver2._impl2_table.b[0] * k1[1] +\
+            Solver2._impl2_table.b[1] * sol.x[1]
         return (xn2, yn2)
     
     # def _runge_kutta_imp(self, T, xvn, yvn, t, table, jac):
