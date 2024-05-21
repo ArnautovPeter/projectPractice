@@ -5,6 +5,9 @@ import matplotlib.pyplot as plt
 def draw(Ox: list[list], Oy: list[list],
          axes_names: tuple[str, str], names: list[str],
          scatter: bool = False):
+    """
+    axes_names (Ox name, Oy name)
+    """
     f = plt.figure(figsize=(10, 7))
     px1 = f.add_subplot(111)
     if not scatter:
@@ -15,7 +18,7 @@ def draw(Ox: list[list], Oy: list[list],
             px1.scatter(x, y, label=name)
             
     px1.set_xlabel(axes_names[0])
-    px1.set_xlabel(axes_names[1])
+    px1.set_ylabel(axes_names[1])
     px1.legend()
     f.show()
 
@@ -33,4 +36,4 @@ def draw_on_plot(Ox: list[list], Oy: list[list],
             px1.scatter(x, y, label=name)
     
     px1.set_xlabel(axes_names[0])
-    px1.set_xlabel(axes_names[1])
+    px1.set_ylabel(axes_names[1])
