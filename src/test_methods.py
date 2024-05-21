@@ -53,7 +53,7 @@ class Test2():
             fonts = 15
             fig = plt.figure(figsize=(fs,fs))
             px1 = fig.add_subplot(111)
-            print(TL)
+            # print(TL)
             px1.plot(TL, max_error_curr, label=methods[i].__name__ + f" {mean([(max_error_curr[i]/TL[i]) for i in range(1, len(TL))])}")
 
             # непонятный код))
