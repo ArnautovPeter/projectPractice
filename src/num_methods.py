@@ -55,11 +55,11 @@ class Solver2():
         self._t_limits = t_limits
         self._params = params
 
-    def set_params(self, new_params):
+    def set_params(self, new_params: list):
         """Изменение параметров уравнения"""    
         self._params = new_params
 
-    def set_t_limits(self, new_limits):
+    def set_t_limits(self, new_limits: tuple[float, float]):
         """Изменение диапазона интегрирования"""
         self._t_limits = new_limits
 
